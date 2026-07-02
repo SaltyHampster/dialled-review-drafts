@@ -8,6 +8,7 @@ const router = express.Router();
 function requireSecret(req, res, next) {
   const secret = req.headers["x-internal-secret"];
   if (secret !== process.env.INTERNAL_WEBHOOK_SECRET) {
+    console.log(`Rejected request to ${req.path}: missing or incorrect x-internal-secret header (got: ${secret ? "a value" : "nothing"})`);
     return res.status(401).json({ error: "unauthorized" });
   }
   next();
