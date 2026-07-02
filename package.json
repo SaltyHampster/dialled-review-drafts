@@ -1,0 +1,22 @@
+{
+  "name": "dialled-review-drafts",
+  "version": "1.0.0",
+  "description": "Discord-triggered call review draft generator for Dialled, with a self-improving feedback loop. Separate service from dialled-call-reviews (the existing notify service).",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js",
+    "migrate": "node src/db/migrate.js",
+    "distill": "node src/scripts/distillLessons.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "pg": "^8.13.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
