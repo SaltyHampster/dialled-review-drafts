@@ -10,7 +10,8 @@ function formatReviewAsNotes(finalOutput) {
   const parts = [];
 
   for (const section of finalOutput.sections || []) {
-    parts.push(`**${humanize(section.name)}**\n${section.content}`);
+    const bullets = (section.points || []).map((p) => `• ${p}`).join("\n");
+    parts.push(`**${humanize(section.name)}**\n${bullets}`);
   }
 
   if (finalOutput.main_takeaways?.length) {
