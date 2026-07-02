@@ -5,6 +5,14 @@ const apiRouter = require("./routes/api");
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
+
+// Log every incoming request - without this, successful requests are
+// invisible in the logs, only errors inside route handlers get logged.
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
+  next();
+});
+
 app.use("/api", apiRouter);
 
 app.get("/health", (req, res) => res.json({ status: "ok" }));
