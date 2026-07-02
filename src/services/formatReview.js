@@ -10,7 +10,9 @@ function formatReviewAsNotes(finalOutput) {
   const parts = [];
 
   for (const section of finalOutput.sections || []) {
-    const bullets = (section.points || []).map((p) => `• ${p}`).join("\n");
+    if (!section.points || section.points.length === 0) continue; // skip empty sections entirely
+
+    const bullets = section.points.map((p) => `• ${p}`).join("\n");
     parts.push(`**${humanize(section.name)}**\n${bullets}`);
   }
 
