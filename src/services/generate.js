@@ -13,7 +13,6 @@ const SECTION_MENU = {
     "objection_handling",
     "assumptive_close",
   ],
-  follow_up_call: ["objection_recap", "urgency_building", "close_attempt"],
   other: [],
 };
 
@@ -67,18 +66,34 @@ async function generateDraft({ transcript, callType, scenarioTag }) {
 
   const response = await client.messages.create({
     model: DEFAULT_MODEL,
-    max_tokens: 2000,
+    // Bullet-point output across up to 5 sections plus JSON structure
+    // overhead needs more room than the old single-paragraph format did.
+    // If this still gets hit on unusually long calls, raise it further.
+    max_tokens: 4000,
     system: systemPrompt,
     messages: [{ role: "user", content: `Transcript:\n\n${transcript}` }],
   });
 
+  if (response.stop_reason === "max_tokens") {
+    console.error("Draft generation was truncated by max_tokens - response is incomplete.");
+    throw new Error("Draft generation was cut off before completing - the call may be unusually long. Try again or increase max_tokens further.");
+  }
+
   const raw = response.content.find((b) => b.type === "text")?.text || "{}";
-  const cleaned = raw.replace(/```json|```/g, "").trim();
+  let cleaned = raw.replace(/```json|```/g, "").trim();
+
+  // Defensive extraction: if the model added any stray text before/after the
+  // JSON despite instructions, only parse the outermost {...} block.
+  const firstBrace = cleaned.indexOf("{");
+  const lastBrace = cleaned.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  }
 
   try {
     return { draft: JSON.parse(cleaned), modelUsed: DEFAULT_MODEL };
   } catch (err) {
-    console.error("Failed to parse draft response:", cleaned);
+    console.error(`Failed to parse draft response (${cleaned.length} chars):`, cleaned);
     throw new Error("Draft generation returned invalid JSON");
   }
 }
