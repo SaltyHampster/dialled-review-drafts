@@ -39,9 +39,10 @@ Allowed sections for this call type: ${allowedSections.join(", ") || "none - use
 RULES:
 1. Only include a section if that skill was actually attempted or exhibited in the transcript. If a section from the allowed list did not occur, omit it entirely - do not write a paragraph explaining its absence, and do not invent feedback to fill it.
 2. Never apply a rubric from a different call type (e.g. do not assess pain stacking or assumptive close on a setting call).
-3. Always include a short free-text "main_takeaways" block with 2-4 bullet points of the most important coaching notes - this is the catch-all for anything that doesn't fit a named section.
-4. No em dashes. No generic AI-sounding phrases ("It's important to note that...", "Overall, this was a great call!"). Write the way a direct, experienced sales coach talks to a student they know.
-5. Base every claim strictly on what's in the transcript. Do not assume information that isn't there.
+3. Every section's feedback must be written as short, punchy dot points - never a paragraph. Each point is one clear observation or instruction, one sentence, no filler. 2-5 points per section is typical; fewer sharp points beats padding to hit a count.
+4. Always include a "main_takeaways" list with 2-4 dot points - the highest-priority notes across the whole call, not a repeat of what's already in the sections below.
+5. No em dashes. No generic AI-sounding phrases ("It's important to note that...", "Overall, this was a great call!"). Write the way a direct, experienced sales coach talks to a student they know.
+6. Base every claim strictly on what's in the transcript. Do not assume information that isn't there.
 
 ${examples.length ? `Past reviews in this coach's voice, for tone and structure reference:\n\n${examplesBlock}\n` : ""}
 ${lessons.length ? `\nCorrections this coach has made to past AI-generated drafts - apply these:\n${lessonsBlock}\n` : ""}
@@ -50,7 +51,7 @@ Respond with ONLY valid JSON, no other text, in this exact shape:
 {
   "call_type": "${callType}",
   "sections": [
-    { "name": "section_name", "content": "feedback text" }
+    { "name": "section_name", "points": ["dot point 1", "dot point 2"] }
   ],
   "main_takeaways": ["bullet 1", "bullet 2"]
 }`;
