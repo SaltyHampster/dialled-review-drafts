@@ -11,6 +11,26 @@ const { generateDraft } = require("../services/generate");
 const CHANNEL_ID = process.env.DISCORD_CALL_REVIEW_DRAFTS_CHANNEL_ID;
 const PORTAL_BASE_URL = process.env.PORTAL_BASE_URL;
 
+// Discord converts any message over ~2,000 characters into a message.txt
+// attachment instead of sending it as plain text - most real call
+// transcripts will hit this. Prefer a .txt attachment if one exists,
+// otherwise fall back to the message content itself for short pastes.
+async function extractTranscript(message) {
+  const txtAttachment = message.attachments.find(
+    (a) => a.name?.toLowerCase().endsWith(".txt") || a.contentType?.startsWith("text/plain")
+  );
+
+  if (txtAttachment) {
+    const response = await fetch(txtAttachment.url);
+    if (!response.ok) {
+      throw new Error(`Failed to download transcript attachment: ${response.status}`);
+    }
+    return (await response.text()).trim();
+  }
+
+  return message.content ? message.content.trim() : "";
+}
+
 function createBot() {
   const bot = new Client({
     intents: [
@@ -27,9 +47,9 @@ function createBot() {
   bot.on("messageCreate", async (message) => {
     if (message.author.bot) return;
     if (message.channel.id !== CHANNEL_ID) return;
-    if (!message.content || message.content.trim().length < 50) return; // ignore chatter/short messages
 
-    const transcript = message.content.trim();
+    const transcript = await extractTranscript(message);
+    if (!transcript || transcript.length < 50) return; // ignore chatter/short messages
 
     try {
       const processingMsg = await message.reply(
