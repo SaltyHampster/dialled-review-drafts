@@ -96,7 +96,7 @@ function createBot() {
         .addFields(
           (draft.sections || []).map((s) => ({
             name: s.name.replace(/_/g, " "),
-            value: s.content.slice(0, 1024),
+            value: (s.points || []).map((p) => `• ${p}`).join("\n").slice(0, 1024) || "—",
           }))
         )
         .setFooter({ text: `Confidence: ${Math.round((classification.confidence || 0) * 100)}% · Edit and submit here:` })
