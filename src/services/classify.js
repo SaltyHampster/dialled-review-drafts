@@ -1,20 +1,20 @@
 const { client, DEFAULT_MODEL } = require("./anthropicClient");
 
-const CALL_TYPES = ["setting_call", "deep_dive_call", "follow_up_call", "other"];
+const CALL_TYPES = ["setting_call", "deep_dive_call", "other"];
 
 const CLASSIFY_SYSTEM_PROMPT = `You classify sales call transcripts for a high-ticket sales coaching business.
 
-Given a raw transcript, determine which type of call it is:
-- setting_call: a short call focused on qualifying a lead and booking them onto a longer deep dive / closing call. No pitch, no close attempted.
-- deep_dive_call: the main sales call - discovery, pain stacking, objection handling, pitch, and an attempted close.
-- follow_up_call: a call with someone who was already pitched previously, following up on a prior conversation or objection.
-- other: anything that doesn't clearly fit the above (e.g. onboarding call, check-in call, unclear/partial transcript).
+There are only two real call types - every transcript you see should be one of these two:
+- setting_call: a short call focused on qualifying a lead and booking them onto a closing call. No pitch, no close attempted.
+- deep_dive_call: the main sales call (also called a "closing call") - discovery, pain stacking, objection handling, pitch, and an attempted close.
+
+Only use "other" if the transcript is genuinely unclear, garbled, or clearly isn't a sales call at all (e.g. cut off after a few lines with no real content). This should be rare - default to picking setting_call or deep_dive_call whenever the content gives you enough to judge.
 
 Also identify a short scenario_tag if relevant (e.g. "price_objection", "spouse_objection", "low_intent", "strong_close", "no_show_reschedule", "timing_objection"). Use null if nothing clear applies.
 
 Respond with ONLY valid JSON, no other text:
 {
-  "call_type": "setting_call" | "deep_dive_call" | "follow_up_call" | "other",
+  "call_type": "setting_call" | "deep_dive_call" | "other",
   "confidence": 0.0-1.0,
   "scenario_tag": "string or null",
   "reasoning": "one short sentence"
